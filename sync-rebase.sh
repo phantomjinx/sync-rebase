@@ -6,9 +6,10 @@ display_usage() {
     cat <<EOT
 Synchronize rebase a (downstream) GIT repository with changes performed in another (upstream) GIT repository.
 
-Usage: sync-rebase.sh <downstream_org/repo/branch> --upstream <upstream_org/repo/branch> [options]
+Usage: sync-rebase.sh <downstream_org/repo/branch> --upstream <upstream_org/repo/branch> --path <repository directory> [options]
 
 -i, --interactive             Enable rebase interactive mode (useful to run from a local machine)
+-p, --path                    Path of the repository
 -u, --upstream                Upstream org/repository/branch from where to sync
 -h, --help                    This help message
 
@@ -72,6 +73,9 @@ main() {
   echo "Trying rebase on ${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH} ... "
   git rebase ${INTERACTIVE} ${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH} &>/dev/null
 
+  echo "Pushing rebase results back to downstream repository"
+  git push --force --set-upstream origin ${DOWNSTREAM_BRANCH}
+
   popd
 }
 
@@ -110,11 +114,16 @@ parse_args(){
           display_usage
           exit 0
           ;;
-        -f|--force)
-          FORCE="true"
-          ;;
         -i|--interactive)
           INTERACTIVE="-i"
+          ;;
+        -p|--path)
+          shift
+          WORKSPACE="${1}"
+          if [ ! -d "${WORKSPACE}" ]; then
+            echo "! the provided path for the checked out repository does not exist"
+            exit 1
+          fi
           ;;
         -u|--upstream)
           shift
@@ -126,14 +135,6 @@ parse_args(){
           if [ "${UPSTREAM_ORG}" == "" ] || [ "${UPSTREAM_REPO}" == "" ] || [ "${UPSTREAM_BRANCH}" == "" ]
           then
             echo "❗ you must provide an upstream repo as -u <org/repo/branch>"
-            exit 1
-          fi
-          ;;
-        -p|--path)
-          shift
-          WORKSPACE="${1}"
-          if [ ! -d "${WORKSPACE}" ]; then
-            echo "! the provided path for the checked out repository does not exist"
             exit 1
           fi
           ;;
