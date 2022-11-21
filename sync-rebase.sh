@@ -42,7 +42,7 @@ main() {
   git remote add -f ${UPSTREAM_REMOTE} https://github.com/${UPSTREAM_ORG}/${UPSTREAM_REPO}.git
 
   # Check if the branches exist
-  echo "Checking if branch ${DOWNSTREAM_BRANCH} exists ... "
+  echo "Checking if branch ${DOWNSTREAM_ORG}/${DOWNSTREAM_BRANCH} exists ... "
   downstream_branch_exists=$(git branch -a | grep remotes/origin/${DOWNSTREAM_BRANCH})
   if [ "${downstream_branch_exists}" == "" ]
   then
@@ -59,10 +59,10 @@ main() {
     exit 1
   fi
 
-  echo "Checking out downstream branch ... "
+  echo "Checking out ${DOWNSTREAM_ORG}/${DOWNSTREAM_BRANCH} downstream branch ... "
   git checkout -f -b downstream origin/${DOWNSTREAM_BRANCH} &>/dev/null
 
-  echo "Fetching from upstream ... "
+  echo "Fetching from ${UPSTREAM_REMOTE} ${UPSTREAM_BRANCH} upstream ... "
   git fetch ${UPSTREAM_REMOTE} ${UPSTREAM_BRANCH} || true
 
   # if there is a previous rebase attempt, abort it
@@ -70,11 +70,11 @@ main() {
   is_rebasing && git rebase --abort
 
   # try rebase see how far we get
-  echo "Trying rebase on ${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH} ... "
+  echo "Trying rebase from ${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH} ... "
   git rebase ${INTERACTIVE} ${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH} &>/dev/null
 
   echo "Pushing rebase results back to downstream repository"
-  git push --force --set-upstream origin ${DOWNSTREAM_BRANCH}
+  git push --force origin ${DOWNSTREAM_BRANCH}
 
   popd
 }
