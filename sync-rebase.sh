@@ -74,7 +74,7 @@ main() {
   git rebase ${INTERACTIVE} ${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH} &>/dev/null
 
   echo "Pushing rebase results back to downstream repository"
-  git push --force origin ${DOWNSTREAM_BRANCH}
+  git push --force origin HEAD:${DOWNSTREAM_BRANCH}
 
   popd
 }
