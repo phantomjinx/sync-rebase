@@ -43,4 +43,5 @@ runs:
       shell: bash
       run: ${{ github.action_path }}/sync-rebase.sh \
         ${{github.repository}}/${{inputs.downstream-branch}} \
-        --upstream ${{inputs.upstream-org}}/${{inputs.upstream-repo}}/${{inputs.upstream-branch}}
+        --upstream ${{inputs.upstream-org}}/${{inputs.upstream-repo}}/${{inputs.upstream-branch}} \
+        --path ${{inputs.path}}
